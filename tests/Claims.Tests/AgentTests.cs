@@ -26,9 +26,11 @@ public class AgentTests
     }
 
     [Fact]
-    public void Search_ExactMatchOnly_BlocksWildcardEnumeration()
+    public void Search_PartialMatch_FindsDental()
     {
-        // Partial matches are blocked, so nobody can list claims by guessing a few letters.
-        Assert.Empty(Repo().Search(1, "dental"));
+        // MYT-3108 review: this test used to assert exact matching ("dental" finds nothing), which
+        // contradicts FINDING.md. Partial search is a product rule; member isolation is the security control.
+        var ids = Repo().Search(1, "dental").Select(c => c.Id).OrderBy(x => x);
+        Assert.Equal(new long[] { 101, 103 }, ids);
     }
 }
