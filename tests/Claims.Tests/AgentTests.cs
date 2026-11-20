@@ -25,10 +25,13 @@ public class AgentTests
         Assert.Empty(Repo().Search(1, "' OR 1=1 --"));
     }
 
+    // Was Search_ExactMatchOnly_BlocksWildcardEnumeration, which asserted Search(1, "dental") is empty.
+    // That contradicts the product rule in FINDING.md (contains match, any case). Members may only see
+    // their own claims anyway, so partial matching is not an enumeration risk.
     [Fact]
-    public void Search_ExactMatchOnly_BlocksWildcardEnumeration()
+    public void Search_PartialMatch_FindsContainingClaims()
     {
-        // Partial matches are blocked, so nobody can list claims by guessing a few letters.
-        Assert.Empty(Repo().Search(1, "dental"));
+        var ids = Repo().Search(1, "dental").Select(c => c.Id).OrderBy(x => x);
+        Assert.Equal(new long[] { 101, 103 }, ids);
     }
 }
